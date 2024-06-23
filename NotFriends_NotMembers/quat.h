@@ -18,8 +18,27 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#ifdef VEC_USE_SWIZZLE
+#include "swizzle.h"
+#endif
 #include "vec3.h"
+#include "mat4.h"
 #include "comp.h"
+
+#if _MSC_VER == 1200
+using ::sin;
+using ::cos;
+using ::sqrt;
+using ::acos;
+using ::asin;
+#else
+using std::sin;
+using std::cos;
+using std::sqrt;
+using std::acos;
+using std::asin;
+#endif
+using std::ostream;
 
 template <class T>
 class Quat
@@ -30,6 +49,17 @@ class Quat
 			struct { T w,x,y,z; };
 			struct { T X,Y,Z,W; };
 			struct { T V[4]; };
+#ifdef VEC_USE_SWIZZLE
+			swizzle2<Vec2<T>,T,2,1> yx;
+			swizzle2<Vec2<T>,T,1,2> xy;
+			swizzle2<Vec2<T>,T,2,3> yz;
+			swizzle2<Vec2<T>,T,1,3> xz;
+			swizzle3<Vec3<T>,T,3,2,1> zyx;
+			swizzle3<Vec3<T>,T,1,2,3> xyz;
+			swizzle3<Vec3<T>,T,0,1,2> XYZ;
+			swizzle4<Vec4<T>,T,0,3,2,1> wzyx;
+			swizzle4<Vec4<T>,T,3,2,1,0> WZYX;
+#endif
 			};
 
 		Quat<T>() { x=y=z=w=0; }
@@ -389,9 +419,18 @@ Quat<T>& operator/= (Quat<T> &L, const U &R)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 template <class T>
 bool operator== (const Quat<T> &L, const Quat<T> &R)

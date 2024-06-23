@@ -11,8 +11,17 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#ifdef VEC_USE_SWIZZLE
+#include "swizzle.h"
+#endif
 #include "vec2.h"
 #include "vec3.h"
+#ifdef VEC_USE_MAT
+#include "mat4.h"
+
+template <class T>
+class Mat4;
+#endif
 
 template <class T>
 class Vec4
@@ -23,6 +32,18 @@ class Vec4
 			struct { T x,y,z,w; };
 			struct { T r,g,b,a; };
 			struct { T V[4]; };
+#ifdef VEC_USE_SWIZZLE
+			swizzle2<Vec2<T>,T,1,0> yx;
+			swizzle2<Vec2<T>,T,0,1> xy;
+			swizzle2<Vec2<T>,T,1,2> yz;
+			swizzle2<Vec2<T>,T,0,2> xz;
+			swizzle3<Vec3<T>,T,2,1,0> zyx;
+			swizzle3<Vec3<T>,T,2,1,0> bgr;
+			swizzle3<Vec3<T>,T,0,1,2> xyz;
+			swizzle3<Vec3<T>,T,0,1,2> rgb;
+			swizzle4<Vec4<T>,T,3,2,1,0> wzyx;
+			swizzle4<Vec4<T>,T,3,2,1,0> abgr;
+#endif
 			};
 
 		Vec4<T>() { x=y=z=w=0; }
@@ -37,6 +58,7 @@ class Vec4
 
 		Vec4<T>(T v[4]) { x=v[0]; y=v[1]; z=v[2]; w=v[3]; }
 
+#ifndef VEC_USE_SWIZZLE
 		inline Vec2<T> xy() const
 			{
 			return(Vec2<T>(x,y));
@@ -46,6 +68,7 @@ class Vec4
 			{
 			return(Vec3<T>(x,y,z));
 			}
+#endif
 
 		inline T dot() const
 			{
@@ -220,6 +243,15 @@ Vec4<T>& operator*= (Vec4<T> &L, const U &R)
 	return(L);
 	}
 
+#ifdef VEC_USE_MAT
+template <class T, class U>
+Vec4<T>& operator*= (Vec4<T> &L, const Mat4<U> &R)
+	{
+	L=L*R;
+	return(L);
+	}
+#endif
+
 template <class T>
 Vec4<T>& operator/= (Vec4<T> &L, const Vec4<T> &R)
 	{
@@ -265,9 +297,18 @@ Vec4<T> operator-- (Vec4<T> &L, int)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 template <class T>
 bool operator== (const Vec4<T> &L, const Vec4<T> &R)

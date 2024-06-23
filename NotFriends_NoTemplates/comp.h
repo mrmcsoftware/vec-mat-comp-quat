@@ -16,6 +16,22 @@
 #include <iostream>
 #include <cassert>
 
+#if _MSC_VER == 1200
+using ::log;
+using ::cos;
+using ::sin;
+using ::cosh;
+using ::sinh;
+using ::exp;
+#else
+using std::log;
+using std::cos;
+using std::sin;
+using std::cosh;
+using std::sinh;
+using std::exp;
+#endif
+
 // complex is already a part of STL, so should use something else
 //    unless this is put in it's own namespace
 
@@ -254,9 +270,18 @@ comp& operator/= (comp &L, const float &R)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 bool operator== (const comp &L, const comp &R)
 	{

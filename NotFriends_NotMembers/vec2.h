@@ -11,6 +11,15 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#ifdef VEC_USE_SWIZZLE
+#include "swizzle.h"
+#endif
+#ifdef VEC_USE_MAT
+#include "mat2.h"
+
+template <class T>
+class Mat2;
+#endif
 
 // Warning: anonymous unions and structs are not guaranteed to work in every
 //          compiler/C++ version
@@ -25,6 +34,9 @@ class Vec2
 			struct { T s,t; };
 			struct { T u,v; };
 			struct { T V[2]; };
+#ifdef VEC_USE_SWIZZLE
+			swizzle2<Vec2<T>,T,1,0> yx;
+#endif
 			};
 
 		Vec2<T>() { x=y=0; }
@@ -36,6 +48,13 @@ class Vec2
 		Vec2<T>(const Vec2<T> &v) { x=v.x; y=v.y; }
 
 		Vec2<T>(T v[2]) { x=v[0]; y=v[1]; }
+
+#ifndef VEC_USE_SWIZZLE
+		inline Vec2<T> yx() const
+			{
+			return(Vec2<T>(y,x));
+			}
+#endif
 
 		inline T dot() const
 			{
@@ -210,6 +229,15 @@ Vec2<T>& operator*= (Vec2<T> &L, const U &R)
 	return(L);
 	}
 
+#ifdef VEC_USE_MAT
+template <class T, class U>
+Vec2<T>& operator*= (Vec2<T> &L, const Mat2<U> &R)
+	{
+	L=L*R;
+	return(L);
+	}
+#endif
+
 template <class T>
 Vec2<T>& operator/= (Vec2<T> &L, const Vec2<T> &R)
 	{
@@ -255,9 +283,18 @@ Vec2<T> operator-- (Vec2<T> &L, int)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 template <class T>
 bool operator== (const Vec2<T> &L, const Vec2<T> &R)

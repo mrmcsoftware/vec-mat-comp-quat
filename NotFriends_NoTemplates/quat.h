@@ -19,7 +19,23 @@
 #include <iostream>
 #include <cassert>
 #include "vec3.h"
+#include "mat4.h"
 #include "comp.h"
+
+#if _MSC_VER == 1200
+using ::sin;
+using ::cos;
+using ::sqrt;
+using ::acos;
+using ::asin;
+#else
+using std::sin;
+using std::cos;
+using std::sqrt;
+using std::acos;
+using std::asin;
+#endif
+using std::ostream;
 
 class quat;
 vec3 cross(const vec3 &v, const quat &q);
@@ -380,9 +396,18 @@ quat& operator/= (quat &L, const float &R)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 bool operator== (const quat &L, const quat &R)
 	{

@@ -14,6 +14,9 @@
 #include <iomanip>
 #include "vec4.h"
 
+#ifdef VEC_USE_MAT
+class vec4;
+#endif
 class mat4;
 mat4 operator* (const mat4 &L, const float &R);
 
@@ -121,6 +124,34 @@ class mat4
 			printf("| %9.4f %9.4f %9.4f %9.4f |\n",m[2][0],m[2][1],m[2][2],m[2][3]);
 			printf("| %9.4f %9.4f %9.4f %9.4f |\n",m[3][0],m[3][1],m[3][2],m[3][3]);
 			if (nl) { printf("\n"); }
+			}
+
+		inline void const latex(int nl=1, bool fixedl=true, std::ostream &os=std::cout) const
+			{
+#if 0
+			printf("$$ \\left[ \\begin{array}{cccc}\n");
+			printf("%9.4f & %9.4f & %9.4f & %9.4f\\\\\n",m[0][0],m[0][1],m[0][2],m[0][3]);
+			printf("%9.4f & %9.4f & %9.4f & %9.4f\\\\\n",m[1][0],m[1][1],m[1][2],m[1][3]);
+			printf("%9.4f & %9.4f & %9.4f & %9.4f\\\\\n",m[2][0],m[2][1],m[2][2],m[2][3]);
+			printf("%9.4f & %9.4f & %9.4f & %9.4f\n",m[3][0],m[3][1],m[3][2],m[3][3]);
+			printf("\\end{array} \\right] $$\n");
+			if (nl) { printf("\n"); }
+#else
+			std::ios_base::fmtflags f;
+			if (fixedl) { f = os.flags(); os << std::fixed; }
+			std::streamsize cwidth = os.width();
+			std::streamsize cprecision = os.precision();
+			os.width(9); os.precision(4);
+			os << "$$ \\left[ \\begin{array}{cccc}\n";
+			os << m[0][0] << " & " << m[0][1] << " & " << m[0][2] << " & " << m[0][3] << "\\\\\n";
+			os << m[1][0] << " & " << m[1][1] << " & " << m[1][2] << " & " << m[1][3] << "\\\\\n";
+			os << m[2][0] << " & " << m[2][1] << " & " << m[2][2] << " & " << m[2][3] << "\\\\\n";
+			os << m[3][0] << " & " << m[3][1] << " & " << m[3][2] << " & " << m[3][3] << "\n";
+			os << "\\end{array} \\right] $$\n";
+			if (nl) { os << "\n"; }
+			os.width(cwidth); os.precision(cprecision);
+			if (fixedl) { os.flags(f); }
+#endif
 			}
 	};
 
@@ -255,9 +286,18 @@ mat4& operator/= (mat4 &L, const float &R)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 bool operator== (const mat4 &L, const mat4 &R)
 	{

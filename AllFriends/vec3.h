@@ -11,7 +11,16 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#ifdef VEC_USE_SWIZZLE
+#include "swizzle.h"
+#endif
 #include "vec2.h"
+#ifdef VEC_USE_MAT
+#include "mat3.h"
+
+template <class T>
+class Mat3;
+#endif
 
 template <class T>
 class Vec3
@@ -22,6 +31,14 @@ class Vec3
 			struct { T x,y,z; };
 			struct { T r,g,b; };
 			struct { T V[3]; };
+#ifdef VEC_USE_SWIZZLE
+			swizzle2<Vec2<T>,T,1,0> yx;
+			swizzle2<Vec2<T>,T,0,1> xy;
+			swizzle2<Vec2<T>,T,1,2> yz;
+			swizzle2<Vec2<T>,T,0,2> xz;
+			swizzle3<Vec3<T>,T,2,1,0> zyx;
+			swizzle3<Vec3<T>,T,2,1,0> bgr;
+#endif
 			};
 
 		Vec3<T>() { x=y=z=0; }
@@ -36,10 +53,12 @@ class Vec3
 
 		Vec3<T>(T v[3]) { x=v[0]; y=v[1]; z=v[2]; }
 
+#ifndef VEC_USE_SWIZZLE
 		inline Vec2<T> xy() const
 			{
 			return(Vec2<T>(x,y));
 			}
+#endif
 
 		inline T dot() const
 			{
@@ -207,6 +226,14 @@ class Vec3
 		return(L);
 		}
 
+#ifdef VEC_USE_MAT
+	friend Vec3<T>& operator*= (Vec3<T> &L, const Mat3<T> &R)
+		{
+		L=L*R;
+		return(L);
+		}
+#endif
+
 	friend Vec3<T>& operator/= (Vec3<T> &L, const Vec3<T> &R)
 		{
 		L.x/=R.x; L.y/=R.y; L.z/=R.z;
@@ -246,9 +273,18 @@ class Vec3
 		}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 	friend bool operator== (const Vec3<T> &L, const Vec3<T> &R)
 		{

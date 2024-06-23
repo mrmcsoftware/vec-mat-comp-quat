@@ -11,6 +11,20 @@
 #include "vec3.h"
 #include "mat4.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#if _MSC_VER == 1200
+using ::sin;
+using ::cos;
+using ::sqrt;
+#else
+using std::sin;
+using std::cos;
+using std::sqrt;
+#endif
+
 mat4 Translate(const vec3 &t)
 {
 mat4 r(1.0);

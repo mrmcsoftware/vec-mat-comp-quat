@@ -11,7 +11,16 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#ifdef VEC_USE_SWIZZLE
+#define VEC_USE_SWIZZLE_SETTING
+#undef VEC_USE_SWIZZLE
+#endif
 #include "vec2.h"
+#ifdef VEC_USE_MAT
+#include "mat3.h"
+
+class mat3;
+#endif
 
 class vec3
 	{
@@ -35,10 +44,12 @@ class vec3
 
 		vec3(float v[3]) { x=v[0]; y=v[1]; z=v[2]; }
 
+#ifndef VEC_USE_SWIZZLE
 		inline vec2 xy() const
 			{
 			return(vec2(x,y));
 			}
+#endif
 
 		inline float dot() const
 			{
@@ -207,6 +218,14 @@ vec3& operator*= (vec3 &L, const float &R)
 	return(L);
 	}
 
+#ifdef VEC_USE_MAT
+vec3& operator*= (vec3 &L, const mat3 &R)
+	{
+	L=L*R;
+	return(L);
+	}
+#endif
+
 vec3& operator/= (vec3 &L, const vec3 &R)
 	{
 	L.x/=R.x; L.y/=R.y; L.z/=R.z;
@@ -246,9 +265,18 @@ vec3 operator-- (vec3 &L, int)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 bool operator== (const vec3 &L, const vec3 &R)
 	{
@@ -283,4 +311,8 @@ std::ostream& operator<< (std::ostream &os, const vec3 &R)
 	return(os);
 	}
 
+#ifdef VEC_USE_SWIZZLE_SETTING
+#define VEC_USE_SWIZZLE
+#undef VEC_USE_SWIZZLE_SETTING
+#endif
 #endif

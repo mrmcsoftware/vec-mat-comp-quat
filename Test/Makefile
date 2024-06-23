@@ -20,6 +20,7 @@ AllFriends:
 	$(CXX) $(CXXFLAGS) -o $(TYPE1)/testeq -I ../$(TYPE1) testeq.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE1)/testmf -I ../$(TYPE1) testmf.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE1)/testall -I ../$(TYPE1) testall.cpp
+	$(CXX) $(CXXFLAGS) -o $(TYPE1)/testall2 -I ../$(TYPE1) testall2.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE1)/vgraphl -I ../$(TYPE1) vgraphl.cpp $(XLIBS)
 	$(CXX) $(CXXFLAGS) -o $(TYPE1)/qgraphl -I ../$(TYPE1) qgraphl.cpp $(XLIBS)
 
@@ -30,6 +31,7 @@ NotFriends_NoTemplates:
 	$(CXX) $(CXXFLAGS) -o $(TYPE2)/testeq -I ../$(TYPE2) testeq.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE2)/testmf -I ../$(TYPE2) testmf.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE2)/testall -I ../$(TYPE2) testall.cpp
+	$(CXX) $(CXXFLAGS) -o $(TYPE2)/testall2 -I ../$(TYPE2) testall2.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE2)/vgraphl -I ../$(TYPE2) vgraphl.cpp $(XLIBS)
 	$(CXX) $(CXXFLAGS) -o $(TYPE2)/qgraphl -I ../$(TYPE2) qgraphl.cpp $(XLIBS)
 
@@ -40,6 +42,7 @@ NotFriends_NotMembers:
 	$(CXX) $(CXXFLAGS) -o $(TYPE3)/testeq -I ../$(TYPE3) testeq.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE3)/testmf -I ../$(TYPE3) testmf.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE3)/testall -I ../$(TYPE3) testall.cpp
+	$(CXX) $(CXXFLAGS) -o $(TYPE3)/testall2 -I ../$(TYPE3) testall2.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE3)/vgraphl -I ../$(TYPE3) vgraphl.cpp $(XLIBS)
 	$(CXX) $(CXXFLAGS) -o $(TYPE3)/qgraphl -I ../$(TYPE3) qgraphl.cpp $(XLIBS)
 
@@ -50,6 +53,7 @@ NotFriends_MostlyMembers:
 	$(CXX) $(CXXFLAGS) -o $(TYPE4)/testeq -I ../$(TYPE4) testeq.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE4)/testmf -I ../$(TYPE4) testmf.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE4)/testall -I ../$(TYPE4) testall.cpp
+	$(CXX) $(CXXFLAGS) -o $(TYPE4)/testall2 -I ../$(TYPE4) testall2.cpp
 	$(CXX) $(CXXFLAGS) -o $(TYPE4)/vgraphl -I ../$(TYPE4) vgraphl.cpp $(XLIBS)
 	$(CXX) $(CXXFLAGS) -o $(TYPE4)/qgraphl -I ../$(TYPE4) qgraphl.cpp $(XLIBS)
 

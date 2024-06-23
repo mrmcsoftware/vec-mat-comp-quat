@@ -3,6 +3,8 @@ CC = cl
 
 CXXFLAGS = -EHsc
 #CXXFLAGS = -GX
+CXXFLAGSWIN = -DVMCQ_NEEDMAX
+#CXXFLAGSWIN = -DVMCQ_NEEDMAX /Zm500
 CFLAGS = -EHsc
 #CFLAGS = -GX
 WLIBS = kernel32.lib user32.lib gdi32.lib
@@ -23,6 +25,7 @@ AllFriends:
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE1)\testeq.exe /Fo$(TYPE1)\testeq.obj -I ..\$(TYPE1) testeq.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE1)\testmf.exe /Fo$(TYPE1)\testmf.obj -I ..\$(TYPE1) testmf.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE1)\testall.exe /Fo$(TYPE1)\testall.obj -I ..\$(TYPE1) testall.cpp
+	$(CXX) $(CXXFLAGS) /Fe$(TYPE1)\testall2.exe /Fo$(TYPE1)\testall2.obj -I ..\$(TYPE1) $(CXXFLAGSWIN) testall2.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE1)\vgraphw.exe /Fo$(TYPE1)\vgraphw.obj -I ..\$(TYPE1) vgraphw.cpp $(WLIBS)
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE1)\qgraphw.exe /Fo$(TYPE1)\qgraphw.obj -I ..\$(TYPE1) qgraphw.cpp $(WLIBS)
 
@@ -33,6 +36,7 @@ NotFriends_NoTemplates:
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE2)\testeq.exe /Fo$(TYPE2)\testeq.obj -I ..\$(TYPE2) testeq.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE2)\testmf.exe /Fo$(TYPE2)\testmf.obj -I ..\$(TYPE2) testmf.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE2)\testall.exe /Fo$(TYPE2)\testall.obj -I ..\$(TYPE2) testall.cpp
+	$(CXX) $(CXXFLAGS) /Fe$(TYPE2)\testall2.exe /Fo$(TYPE2)\testall2.obj -I ..\$(TYPE2) $(CXXFLAGSWIN) testall2.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE2)\vgraphw.exe /Fo$(TYPE2)\vgraphw.obj -I ..\$(TYPE2) vgraphw.cpp $(WLIBS)
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE2)\qgraphw.exe /Fo$(TYPE2)\qgraphw.obj -I ..\$(TYPE2) qgraphw.cpp $(WLIBS)
 
@@ -43,6 +47,7 @@ NotFriends_NotMembers:
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE3)\testeq.exe /Fo$(TYPE3)\testeq.obj -I ..\$(TYPE3) testeq.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE3)\testmf.exe /Fo$(TYPE3)\testmf.obj -I ..\$(TYPE3) testmf.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE3)\testall.exe /Fo$(TYPE3)\testall.obj -I ..\$(TYPE3) testall.cpp
+	$(CXX) $(CXXFLAGS) /Fe$(TYPE3)\testall2.exe /Fo$(TYPE3)\testall2.obj -I ..\$(TYPE3) $(CXXFLAGSWIN) testall2.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE3)\vgraphw.exe /Fo$(TYPE3)\vgraphw.obj -I ..\$(TYPE3) vgraphw.cpp $(WLIBS)
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE3)\qgraphw.exe /Fo$(TYPE3)\qgraphw.obj -I ..\$(TYPE3) qgraphw.cpp $(WLIBS)
 
@@ -53,6 +58,7 @@ NotFriends_MostlyMembers:
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE4)\testeq.exe /Fo$(TYPE4)\testeq.obj -I ..\$(TYPE4) testeq.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE4)\testmf.exe /Fo$(TYPE4)\testmf.obj -I ..\$(TYPE4) testmf.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE4)\testall.exe /Fo$(TYPE4)\testall.obj -I ..\$(TYPE4) testall.cpp
+	$(CXX) $(CXXFLAGS) /Fe$(TYPE4)\testall2.exe /Fo$(TYPE4)\testall2.obj -I ..\$(TYPE4) $(CXXFLAGSWIN) testall2.cpp
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE4)\vgraphw.exe /Fo$(TYPE4)\vgraphw.obj -I ..\$(TYPE4) vgraphw.cpp $(WLIBS)
 	$(CXX) $(CXXFLAGS) /Fe$(TYPE4)\qgraphw.exe /Fo$(TYPE4)\qgraphw.obj -I ..\$(TYPE4) qgraphw.cpp $(WLIBS)
 

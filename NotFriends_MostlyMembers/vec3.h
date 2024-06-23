@@ -11,7 +11,16 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#ifdef VEC_USE_SWIZZLE
+#include "swizzle.h"
+#endif
 #include "vec2.h"
+#ifdef VEC_USE_MAT
+#include "mat3.h"
+
+template <class T>
+class Mat3;
+#endif
 
 template <class T>
 class Vec3
@@ -22,6 +31,14 @@ class Vec3
 			struct { T x,y,z; };
 			struct { T r,g,b; };
 			struct { T V[3]; };
+#ifdef VEC_USE_SWIZZLE
+			swizzle2<Vec2<T>,T,1,0> yx;
+			swizzle2<Vec2<T>,T,0,1> xy;
+			swizzle2<Vec2<T>,T,1,2> yz;
+			swizzle2<Vec2<T>,T,0,2> xz;
+			swizzle3<Vec3<T>,T,2,1,0> zyx;
+			swizzle3<Vec3<T>,T,2,1,0> bgr;
+#endif
 			};
 
 		Vec3<T>() { x=y=z=0; }
@@ -36,10 +53,12 @@ class Vec3
 
 		Vec3<T>(T v[3]) { x=v[0]; y=v[1]; z=v[2]; }
 
+#ifndef VEC_USE_SWIZZLE
 		inline Vec2<T> xy() const
 			{
 			return(Vec2<T>(x,y));
 			}
+#endif
 
 		inline T dot() const
 			{
@@ -118,6 +137,9 @@ class Vec3
 		Vec3<T>& operator-= (const T &R);
 		Vec3<T>& operator*= (const Vec3<T> &R);
 		Vec3<T>& operator*= (const T &R);
+#ifdef VEC_USE_MAT
+		Vec3<T>& operator*= (const Mat3<T> &R);
+#endif
 		Vec3<T>& operator/= (const Vec3<T> &R);
 		Vec3<T>& operator/= (const T &R);
 		Vec3<T>& operator++ ();
@@ -250,6 +272,15 @@ Vec3<T>& Vec3<T>::operator*= (const T &R)
 	return(*this);
 	}
 
+#ifdef VEC_USE_MAT
+template <class T>
+Vec3<T>& Vec3<T>::operator*= (const Mat3<T> &R)
+	{
+	*this=*this*R;
+	return(*this);
+	}
+#endif
+
 template <class T>
 Vec3<T>& Vec3<T>::operator/= (const Vec3<T> &R)
 	{
@@ -295,9 +326,18 @@ Vec3<T> Vec3<T>::operator-- (int)
 	}
 
 #ifdef EPSILONCOMP
-
-#define eq(a,b) (fabs(a-b)<EPSILONCOMP)
-#define ne(a,b) (fabs(a-b)>=EPSILONCOMP)
+#ifdef EPSILONCOMPREL
+#ifndef VMCQ_NEEDMAX
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*std::max(fabs(a),fabs(b)))
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP*((fabs(a)>fabs(b))?fabs(a):fabs(b)))
+#endif
+#else
+#define eq(a,b) (fabs(a-(b))<EPSILONCOMP)
+#define ne(a,b) (fabs(a-(b))>=EPSILONCOMP)
+#endif
 
 template <class T>
 bool Vec3<T>::operator== (const Vec3<T> &R) const

@@ -117,7 +117,11 @@ I explain **`comp.h`** [here](#leave) (last item)
 
 I've provided various test programs that test every function of my classes.
 **`testall.cpp`** tests most functions (doesn't test some functions already
-tested in **`testc.cpp`**, **`testq.cpp`**, and **`testmf.cpp`**).  For
+tested in **`testc.cpp`**, **`testq.cpp`**, and **`testmf.cpp`**).
+**`testall2.cpp`** does what **`testall.cpp`** does but adds a few new
+tests (swizzles and vector*=matrix), adds LaTeX code printing of matrices,
+adds Pass/Fail determinations, and uses **`vmcq.h`** instead of including
+the individual include files (and adding namespace vmcq).  For
 comparison purposes, **`testcc.c`** shows the results of calling (GNU?) C's
 (complex.h) complex number functions, and **`testccc.cpp`** shows the results
 of calling C++'s complex number functions.  These results can be compared with
@@ -165,8 +169,8 @@ To clean up things (remove the executables):
     nmake /f Makefile.win clean
 
 > **Note:** if you are using an older version of Visual C (specifically version
-> 6), you'll need to use the other versions of **`CXXFLAGS`** and **`CFLAGS`**
-> in the **`Makefile.win`** file.
+> 6), you'll need to use the other versions of **`CXXFLAGS`**, **`CFLAGS`**,
+> and **`CXXFLAGSWIN`** in the **`Makefile.win`** file.
  
 ## Some Things I Leave Up to the Users of This Repo<a name="leave"></a>
 
@@ -193,8 +197,10 @@ method I use in **`testc.cpp`** (using **`_MSC_VER`**).
 interface / definitions in a header (**`.h`**) file and the implementation in a
 source (**`.cpp`**) file.
 
-  - You may want to put the various classes and functions into their own
-namespace or namespaces.
+  - ~~You may want to put the various classes and functions into their own
+namespace or namespaces.~~  I did that one - include **`vmcq.h`** instead of
+the individual include files, or just include the desired class include file
+in a **`namespace vmcq { }`** block.
 
   - **`comp.h`** in AlternateWays (which is a modification of the
 NotFriends_MostlyMembers comp.h, though it can be implemented in any of the
@@ -207,7 +213,8 @@ any comp variable (for example **`c3`**) and add this: **`c3.setFormat(1);`**.
 Note: either of these methods changes all subsequent printings of any comp
 variable (perhaps more accurately, Comp) of the instantiated type to be this
 format (until another format setting occurs).  This idea can also be applied
-to replace **`EPSILONCOMP`** if you desire.
+to replace **`EPSILONCOMP`** if you desire.  Or even set the width and precision
+of floating point number printing in the matrix classes.
 
 ## Disclaimers
 
@@ -349,9 +356,13 @@ Quick Jumps:
   - **#define**
     - **`C_DISPLAY_FORMAT`** : **`not defined: 1+j2`**, **`0: 1+j2`**, **`1: 1,2i`**, **`2: 1+2i`**, **`3: 1,2`**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
 ### Quaternions - quat.h<a name="quaternions"></a>
   - **Member Variable Access:**
     - **`w, x, y, z`**, **`X, Y, Z, W`**, or **`V[4]`**
+  - **Optional Swizzles (If swizzles are enabled):**
+    - **`yx`**, **`xy`**, **`yz`**, **`xz`**, **`zyx`**, **`xyz`**, **`XYZ`**, **`wzyx`**, **`WZYX`**
   - **Constructors:**
     - quat() { x=y=z=w=0; }
     - quat(float cw, float cx, float cy, float cz) { x=cx; y=cy; z=cz; w=cw; }
@@ -408,12 +419,17 @@ Quick Jumps:
   - **#define**
     - **`Q_DISPLAY_FORMAT`** : **`not defined: 1,2i,3j,4k`**, **`0: 1,2i,3j,4k`**, **`1: 1+2i+3j+4k`**, **`2: 1,2,3,4`**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
     - **`EULER2QUAT_METHOD`** : **`not defined: 0`**, **`0`**, **`1`**, **`2`**
     - **`DONT_SWAP_PITCH_ROLL`**
     - **`DONT_SWAP_YAW_PITCH`**
+    - **`VEC_USE_SWIZZLE`**
 ### 2d Vector - vec2.h<a name="2d_vector"></a>
   - **Member Variable Access:**
     - **`x, y`**, **`s, t`**, **`u, v`**, or **`V[2]`**
+  - **Optional Swizzles (If swizzles are enabled):**
+    - **`yx`**
   - **Constructors:**
     - vec2() { x=y=0; }
     - vec2(float cx, float cy) { x=cx; y=cy; }
@@ -421,6 +437,7 @@ Quick Jumps:
     - vec2(vec2 &v) { x=v.x; y=v.y; }
     - vec2(float v[2]) { x=v[0]; y=v[1]; }
   - **Inline Functions:**
+    - vec2 yx()    (If swizzles are not enabled)
     - float dot()
     - float dot(vec2 &q)
     - float length()
@@ -447,6 +464,7 @@ Quick Jumps:
     - vec2& operator -= (vec2 &L, float &R)
     - vec2& operator *= (vec2 &L, vec2 &R)
     - vec2& operator *= (vec2 &L, float &R)
+    - vec2& operator *= (vec2 &L, mat2 &R)    (If vector/matrix interop enabled)
     - vec2& operator /= (vec2 &L, vec2 &R)
     - vec2& operator /= (vec2 &L, float &R)
     - vec2& operator ++ (vec2 &R)
@@ -458,9 +476,15 @@ Quick Jumps:
     - std::ostream& operator << (std::ostream &os, vec2 &R)
   - **#define**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
+    - **`VEC_USE_SWIZZLE`**
+    - **`VEC_USE_MAT`**
 ### 3d Vector - vec3.h<a name="3d_vector"></a>
   - **Member Variable Access:**
     - **`x, y, z`**, **`r, g, b`**, or **`V[3]`**
+  - **Optional Swizzles (If swizzles are enabled):**
+    - **`yx`**, **`xy`**, **`yz`**, **`xz`**, **`zyx`**, **`bgr`**
   - **Constructors:**
     - vec3() { x=y=z=0; }
     - vec3(float cx, float cy, float cz) { x=cx; y=cy; z=cz; }
@@ -469,7 +493,7 @@ Quick Jumps:
     - vec3(vec3 &v) { x=v.x; y=v.y; z=v.z; }
     - vec3(float v[3]) { x=v[0]; y=v[1]; z=v[2]; }
   - **Inline Functions:**
-    - vec2 xy()
+    - vec2 xy()    (If swizzles are not enabled)
     - float dot()
     - float dot(vec3 &q)
     - vec3 cross(vec3 &q)
@@ -497,6 +521,7 @@ Quick Jumps:
     - vec3& operator -= (vec3 &L, float &R)
     - vec3& operator *= (vec3 &L, vec3 &R)
     - vec3& operator *= (vec3 &L, float &R)
+    - vec3& operator *= (vec3 &L, mat3 &R)    (If vector/matrix interop enabled)
     - vec3& operator /= (vec3 &L, vec3 &R)
     - vec3& operator /= (vec3 &L, float &R)
     - vec3& operator ++ (vec3 &R)
@@ -508,9 +533,15 @@ Quick Jumps:
     - std::ostream& operator << (std::ostream &os, vec3 &R)
   - **#define**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
+    - **`VEC_USE_SWIZZLE`**
+    - **`VEC_USE_MAT`**
 ### 4d Vector - vec4.h<a name="4d_vector"></a>
   - **Member Variable Access:**
     - **`x, y, z, w`**, **`r, g, b, a`**, or **`V[4]`**
+  - **Optional Swizzles (If swizzles are enabled):**
+    - **`yx`**, **`xy`**, **`yz`**, **`xz`**, **`zyx`**, **`bgr`**, **`xyz`**, **`rgb`**, **`wzyx`**, **`abgr`**
   - **Constructors:**
     - vec4() { x=y=z=w=0; }
     - vec4(float cx, float cy, float cz, float cw) { x=cx; y=cy; z=cz; w=cw; }
@@ -519,8 +550,8 @@ Quick Jumps:
     - vec4(vec4 &v) { x=v.x; y=v.y; z=v.z; w=v.w; }
     - vec4(float v[4]) { x=v[0]; y=v[1]; z=v[2]; w=v[3]; }
   - **Inline Functions:**
-    - vec2 xy()
-    - vec3 xyz()
+    - vec2 xy()    (If swizzles are not enabled)
+    - vec3 xyz()    (If swizzles are not enabled)
     - float dot()
     - float dot(vec4 &q)
     - float length()
@@ -547,6 +578,7 @@ Quick Jumps:
     - vec4& operator -= (vec4 &L, float &R)
     - vec4& operator *= (vec4 &L, vec4 &R)
     - vec4& operator *= (vec4 &L, float &R)
+    - vec4& operator *= (vec4 &L, mat4 &R)    (If vector/matrix interop enabled)
     - vec4& operator /= (vec4 &L, vec4 &R)
     - vec4& operator /= (vec4 &L, float &R)
     - vec4& operator ++ (vec4 &R)
@@ -558,6 +590,10 @@ Quick Jumps:
     - std::ostream& operator << (std::ostream &os, vec4 &R)
   - **#define**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
+    - **`VEC_USE_SWIZZLE`**
+    - **`VEC_USE_MAT`**
 ### 2x2 Matrix - mat2.h<a name="2x2_matrix"></a>
   - **Member Variable Access:**
     - **`m[2][2]`**, **`M[4]`**, or **`x0, x1, y0, y1`**
@@ -572,6 +608,7 @@ Quick Jumps:
     - float determinant()
     - mat2 inverse()
     - void print(int nl=1)
+    - void latex(int nl=1, bool fixedl=true, std::ostream &os=std::cout)
   - **operator  Overloads:**
     - mat2 operator + (mat2 &L, mat2 &R)
     - mat2 operator - (mat2 &R)
@@ -594,6 +631,8 @@ Quick Jumps:
     - std::ostream& operator << (std::ostream &os, mat2 &R)
   - **#define**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
 ### 3x3 Matrix - mat3.h<a name="3x3_matrix"></a>
   - **Member Variable Access:**
     - **`m[3][3]`**, **`M[9]`**, or **`x0, x1, x2, y0, y1, y2, z0, z1, z2`**
@@ -608,6 +647,7 @@ Quick Jumps:
     - float determinant()
     - mat3 inverse()
     - void print(int nl=1)
+    - void latex(int nl=1, bool fixedl=true, std::ostream &os=std::cout)
   - **operator  Overloads:**
     - mat3 operator + (mat3 &L, mat3 &R)
     - mat3 operator - (mat3 &R)
@@ -630,6 +670,8 @@ Quick Jumps:
     - std::ostream& operator << (std::ostream &os, mat3 &R)
   - **#define**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
 ### 4x4 Matrix - mat4.h<a name="4x4_matrix"></a>
   - **Member Variable Access:**
     - **`m[4][4]`**, **`M[16]`**, or **`x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3`**
@@ -647,6 +689,7 @@ Quick Jumps:
     - float determinant()
     - mat4 inverse()
     - void print(int nl=1)
+    - void latex(int nl=1, bool fixedl=true, std::ostream &os=std::cout)
   - **operator  Overloads:**
     - mat4 operator + (mat4 &L, mat4 &R)
     - mat4 operator - (mat4 &R)
@@ -669,6 +712,8 @@ Quick Jumps:
     - std::ostream& operator << (std::ostream &os, mat4 &R)
   - **#define**
     - **`EPSILONCOMP`** : **`not defined: no epsilon comparison`**, **`defined: compare with specified epsilon`**
+    - **`EPSILONCOMPREL`** : **`not defined: absolute epsilon (no matter whether values are large or small)`**, **`defined: relative epsilon`**
+    - **`VMCQ_NEEDMAX`** : **`not defined: std has max`**, **`defined: std doesn't have max`**
 ### 3d Transformations / Projections - matfunc.h<a name="3d_trans"></a>
   - **Extra Functions:**
     - mat4 Translate(vec3 &translate)
